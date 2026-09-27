@@ -1,0 +1,34 @@
+flowchart LR
+    U([User])
+    OS([Linux Operating System])
+
+    subgraph S[Simple Shell]
+      A((Enter Command))
+      B((Execute External Program))
+      C((Execute Built-in))
+      D((Change Directory))
+      E((View Current Directory))
+      F((Redirect Input/Output))
+      G((Execute Pipeline))
+      H((Run in Background))
+      I((View Error))
+      J((Exit Shell))
+    end
+
+    U --> A
+    U --> B
+    U --> C
+    U --> D
+    U --> E
+    U --> F
+    U --> G
+    U --> H
+    U --> I
+    U --> J
+
+    OS --> B
+    OS --> D
+    OS --> E
+    OS --> F
+    OS --> G
+    OS --> H
