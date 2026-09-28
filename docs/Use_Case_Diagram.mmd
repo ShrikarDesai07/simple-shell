@@ -1,87 +1,67 @@
 flowchart LR
     %% Actors
-    User(["User"]):::actor
-    OS(["Linux Operating System<br/>(Kernel Services)"]):::actor
+    User(["Interactive User"]):::actor
+    Kernel(["Linux Kernel / OS<br/>(POSIX Services)"]):::actor
 
     %% System Boundary
-    subgraph Shell ["Simple Shell"]
+    subgraph Shell ["System Boundary: Simple Shell"]
         direction LR
 
-        subgraph Session ["Session & Input Layer"]
+        subgraph Session ["1. Session & Input Layer"]
             direction TB
             UC_Enter(["Enter Command Line"]):::primaryUC
-            UC_Parse(["Parse Input & Arguments"]):::supportUC
+            UC_Parse(["Parse Input & Tokens"]):::supportUC
             UC_Exit(["Exit Shell Session"]):::primaryUC
-            UC_Error(["Report Errors / Diagnostics"]):::errorUC
         end
 
-        subgraph Execution ["Command Execution"]
+        subgraph Execution ["2. Command Execution"]
             direction TB
-            UC_Builtin(["Execute Built-in Command"]):::execUC
             UC_External(["Execute External Program"]):::execUC
+            UC_Builtin(["Execute Built-in Command<br/>(cd, pwd, echo, help)"]):::execUC
         end
 
-        subgraph Builtins ["Built-in Operations"]
+        subgraph Modifiers ["3. Execution Modifiers & Diagnostics"]
             direction TB
-            UC_CD(["Change Directory (cd)"]):::leafUC
-            UC_PWD(["Print Working Directory (pwd)"]):::leafUC
-            UC_Echo(["Display Arguments (echo)"]):::leafUC
-            UC_Help(["Display Help (help)"]):::leafUC
-        end
-
-        subgraph Modifiers ["Execution Modifiers"]
-            direction TB
-            UC_Pipe(["Execute Pipeline (|)"]):::modUC
-            UC_Redir(["Redirect I/O (<, >, >>)"]):::modUC
-            UC_Bg(["Run in Background (&)"]):::modUC
+            UC_Redir(["Redirect I/O<br/>(<, >, >>)"]):::modUC
+            UC_Pipe(["Execute Pipeline<br/>(|)"]):::modUC
+            UC_Bg(["Run in Background<br/>(&)"]):::modUC
+            UC_Error(["Report Diagnostics<br/>& Syntax Errors"]):::errorUC
         end
     end
 
-    %% User Associations
+    %% User Interactions
     User --> UC_Enter
     User --> UC_Exit
 
-    %% Core Inclusions & Invocations
+    %% Core Parsing Inclusion
     UC_Enter -.->|&laquo;include&raquo;| UC_Parse
-    UC_Enter --> UC_Builtin
+
+    %% Command Execution Routing
     UC_Enter --> UC_External
+    UC_Enter --> UC_Builtin
 
-    %% Dispatch to Built-in implementations
-    UC_Builtin --> UC_CD
-    UC_Builtin --> UC_PWD
-    UC_Builtin --> UC_Echo
-    UC_Builtin --> UC_Help
-    UC_Builtin --> UC_Exit
+    %% Execution Modifiers extend External Program
+    UC_External <-.-|&laquo;extend&raquo;| UC_Redir
+    UC_External <-.-|&laquo;extend&raquo;| UC_Pipe
+    UC_External <-.-|&laquo;extend&raquo;| UC_Bg
+    UC_External <-.-|&laquo;extend&raquo;| UC_Error
 
-    %% Execution Modifiers (Extend)
-    UC_Pipe -.->|&laquo;extend&raquo;| UC_External
-    UC_Redir -.->|&laquo;extend&raquo;| UC_External
-    UC_Bg -.->|&laquo;extend&raquo;| UC_External
+    %% POSIX Kernel Syscall Interfaces
+    UC_External -->|fork, execvp, waitpid| Kernel
+    UC_Builtin -->|chdir, getcwd| Kernel
+    UC_Redir -->|open, dup2| Kernel
+    UC_Pipe -->|pipe, dup2| Kernel
+    UC_Bg -->|waitpid WNOHANG| Kernel
 
-    %% Error Handling (Extend)
-    UC_Error -.->|&laquo;extend&raquo;| UC_Parse
-    UC_Error -.->|&laquo;extend&raquo;| UC_Builtin
-    UC_Error -.->|&laquo;extend&raquo;| UC_External
-
-    %% Kernel Syscall Interfacing
-    UC_External -->|fork / execvp / waitpid| OS
-    UC_Pipe -->|pipe / dup2| OS
-    UC_Redir -->|open / dup2| OS
-    UC_Bg -->|waitpid WNOHANG| OS
-    UC_CD -->|chdir| OS
-    UC_PWD -->|getcwd| OS
-
-    %% Clean Visual Styling
-    classDef actor fill:#f8fafc,stroke:#334155,stroke-width:2px,font-weight:bold,color:#0f172a;
+    %% Visual Styling
+    classDef actor fill:#f8fafc,stroke:#0f172a,stroke-width:2px,font-weight:bold,color:#0f172a;
     classDef primaryUC fill:#ecfdf5,stroke:#059669,stroke-width:2px,font-weight:600,color:#064e3b;
     classDef execUC fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,font-weight:600,color:#0c4a6e;
     classDef supportUC fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,stroke-dasharray: 4 2,color:#334155;
-    classDef leafUC fill:#faf5ff,stroke:#9333ea,stroke-width:1.5px,color:#581c87;
-    classDef modUC fill:#fefce8,stroke:#d97706,stroke-width:1.5px,color:#713f12;
+    classDef modUC fill:#fefce8,stroke:#d97706,stroke-width:1.5px,font-weight:500,color:#713f12;
     classDef errorUC fill:#fef2f2,stroke:#ef4444,stroke-width:1.5px,stroke-dasharray: 3 3,color:#7f1d1d;
 
-    style Shell fill:#fafafa,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
+    style Shell fill:#fafafa,stroke:#94a3b8,stroke-width:2px,stroke-dasharray: 5 5;
     style Session fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
     style Execution fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
-    style Builtins fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
     style Modifiers fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
