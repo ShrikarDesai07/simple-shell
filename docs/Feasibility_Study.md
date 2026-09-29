@@ -18,7 +18,7 @@ A staged implementation reduces risk: requirements → parser/core shell → pro
 
 ## Resource Feasibility
 
-Required resources are a Linux development environment, a C compiler, GitHub repository, Jira project, and two team members with assigned module ownership and review duties.
+Required resources are a Linux development environment, a C compiler, GitHub repository, Jira project, and four team members with assigned module ownership and review duties.
 
 ## Security/Safety Feasibility
 

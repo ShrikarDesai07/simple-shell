@@ -15,7 +15,7 @@ validation will be carried out.
 - Confirm each NFR has a named verification procedure.
 - Confirm every user-visible capability is represented in the use case model, and every use case
   traces back to a requirement.
-- Confirm project scope is feasible for two students and the available Linux/C toolchain.
+- Confirm project scope is feasible for four students and the available Linux/C toolchain.
 
 ## 3. Actors and use cases
 
@@ -29,7 +29,7 @@ validation will be carried out.
 
 ## 4. Requirements review
 
-Two team members review each requirement and record unresolved questions.
+Each requirement is reviewed by at least two team members, and unresolved questions are recorded.
 
 Additional checks:
 
@@ -90,7 +90,7 @@ authorisation, scope and method for a later execution phase.
 
 ### 8.1 Authorisation and scope
 
-- **Authorisation:** local robustness testing of this project's own binary by the two team members,
+- **Authorisation:** local robustness testing of this project's own binary by the team members,
   on development machines only.
 - **In scope:** the `parse_line` entry point, the interactive command loop, and the parser limits in
   SRS Section 7.1.

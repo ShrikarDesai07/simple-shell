@@ -186,7 +186,7 @@ These limits are enforced by the parser and are part of the documented behaviour
 
 - GCC and POSIX APIs are available.
 - The user has access to normal Linux executables for functional testing.
-- Two team members collaborate through GitHub and Jira.
+- Four team members collaborate through GitHub and Jira.
 
 ## 9. Acceptance Summary
 
