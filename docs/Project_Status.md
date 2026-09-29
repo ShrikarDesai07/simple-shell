@@ -2,7 +2,7 @@
 
 **Project:** Simple Shell  
 **Team:** H1  
-**Members:** 2  
+**Members:** 4 
 **Primary language:** C  
 **Target:** Linux
 
