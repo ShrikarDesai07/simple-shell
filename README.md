@@ -77,7 +77,3 @@ make asan-test
 ## Out of scope for the initial release
 
 Full shell scripting, variable expansion, globbing, command substitution, aliases, job-control signals, and complete POSIX grammar.
-
-## Team
-
-Team H1 — two-member project.
