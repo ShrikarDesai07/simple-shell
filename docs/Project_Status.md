@@ -1,8 +1,7 @@
 # Project Status
 
 **Project:** Simple Shell  
-**Team:** H1  
-**Members:** 4 
+**Team:** H1   
 **Primary language:** C  
 **Target:** Linux
 
