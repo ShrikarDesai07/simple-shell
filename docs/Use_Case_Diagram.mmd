@@ -1,59 +1,80 @@
 flowchart LR
-    %% Actors
-    User(["Interactive User"]):::actor
-    Kernel(["Linux Kernel / OS<br/>(POSIX Services)"]):::actor
+    %% ============================================================
+    %% Simple Shell - Use Case Diagram (Phase 1 deliverable)
+    %% ---
+    %% ACTOR GROUPING: every use case inside the system boundary is
+    %% initiated by A1 (Interactive User). A2 (Linux Kernel / POSIX OS)
+    %% is a supporting actor that supplies services to those use cases.
+    %% Use case identifiers and relationship semantics are defined in
+    %% Use_Case_Catalog.md.
+    %% ============================================================
 
-    %% System Boundary
-    subgraph Shell ["System Boundary: Simple Shell"]
+    %% ---------- ACTORS ----------
+    User(["Interactive User<br/><b>A1 &mdash; Primary Actor</b>"])
+    Kernel(["Linux Kernel / POSIX OS<br/><b>A2 &mdash; Supporting Actor</b>"])
+
+    %% ---------- SYSTEM BOUNDARY: all use cases belong to A1 ----------
+    subgraph SYS ["System Boundary: Simple Shell &mdash; use cases initiated by A1 Interactive User"]
         direction LR
 
-        subgraph Session ["1. Session & Input Layer"]
+        %% ----- A1, command entry ----- %%
+        subgraph G1 ["A1 &middot; Command Entry"]
             direction TB
-            UC_Enter(["Enter Command Line"]):::primaryUC
-            UC_Parse(["Parse Input & Tokens"]):::supportUC
-            UC_Exit(["Exit Shell Session"]):::primaryUC
+            UC01(["UC-01<br/>Enter Command Line"]):::primaryUC
+            UC02(["UC-02<br/>Parse Input &amp; Tokens"]):::supportUC
+            UC10(["UC-10<br/>Exit Shell Session"]):::primaryUC
         end
 
-        subgraph Execution ["2. Command Execution"]
+        %% ----- A1, execution ----- %%
+        subgraph G2 ["A1 &middot; Command Execution"]
             direction TB
-            UC_External(["Execute External Program"]):::execUC
-            UC_Builtin(["Execute Built-in Command<br/>(cd, pwd, echo, help)"]):::execUC
+            UC03(["UC-03<br/>Execute Command"]):::execUC
+            UC04(["UC-04<br/>Execute External Program"]):::execUC
+            UC05(["UC-05<br/>Execute Built-in Command<br/>(cd, pwd, echo, help, exit)"]):::execUC
         end
 
-        subgraph Modifiers ["3. Execution Modifiers & Diagnostics"]
+        %% ----- A1, modifiers ----- %%
+        subgraph G3 ["A1 &middot; Modifiers &amp; Diagnostics"]
             direction TB
-            UC_Redir(["Redirect I/O<br/>(<, >, >>)"]):::modUC
-            UC_Pipe(["Execute Pipeline<br/>(|)"]):::modUC
-            UC_Bg(["Run in Background<br/>(&)"]):::modUC
-            UC_Error(["Report Diagnostics<br/>& Syntax Errors"]):::errorUC
+            UC06(["UC-06<br/>Redirect I/O<br/>(<, >, >>)"]):::modUC
+            UC07(["UC-07<br/>Execute Pipeline<br/>(|)"]):::modUC
+            UC08(["UC-08<br/>Run in Background<br/>(&amp;)"]):::modUC
+            UC09(["UC-09<br/>Report Diagnostics<br/>&amp; Syntax Errors"]):::errorUC
         end
     end
 
-    %% User Interactions
-    User --> UC_Enter
-    User --> UC_Exit
+    %% ---------- ASSOCIATIONS: actor initiates use case ----------
+    User --> UC01
+    User --> UC10
 
-    %% Core Parsing Inclusion
-    UC_Enter -.->|&laquo;include&raquo;| UC_Parse
+    %% ---------- INCLUDE: always executed as part of the source ----------
+    UC01 -.->|&laquo;include&raquo;| UC02
 
-    %% Command Execution Routing
-    UC_Enter --> UC_External
-    UC_Enter --> UC_Builtin
+    %% ---------- DISPATCH ----------
+    UC01 --> UC03
 
-    %% Execution Modifiers extend External Program
-    UC_External <-.-|&laquo;extend&raquo;| UC_Redir
-    UC_External <-.-|&laquo;extend&raquo;| UC_Pipe
-    UC_External <-.-|&laquo;extend&raquo;| UC_Bg
-    UC_External <-.-|&laquo;extend&raquo;| UC_Error
+    %% ---------- GENERALISATION: child specialises parent ----------
+    UC04 -->|&laquo;specialises&raquo;| UC03
+    UC05 -->|&laquo;specialises&raquo;| UC03
 
-    %% POSIX Kernel Syscall Interfaces
-    UC_External -->|fork, execvp, waitpid| Kernel
-    UC_Builtin -->|chdir, getcwd| Kernel
-    UC_Redir -->|open, dup2| Kernel
-    UC_Pipe -->|pipe, dup2| Kernel
-    UC_Bg -->|waitpid WNOHANG| Kernel
+    %% ---------- EXTEND: optional behaviour added to a complete use case ----------
+    %% Modifiers apply to BOTH external programs and built-ins, so they
+    %% extend the shared parent UC-03 rather than UC-04 alone.
+    UC06 <-.-|&laquo;extend&raquo;| UC03
+    UC07 <-.-|&laquo;extend&raquo;| UC03
+    UC08 <-.-|&laquo;extend&raquo;| UC03
+    UC09 <-.-|&laquo;extend&raquo;| UC03
+    UC09 -.->|&laquo;extend&raquo;| UC02
 
-    %% Visual Styling
+    %% ---------- A2 SUPPORTED SERVICES ----------
+    UC03 -->|waitpid| Kernel
+    UC04 -->|fork, execvp| Kernel
+    UC05 -->|chdir, getcwd| Kernel
+    UC06 -->|open, dup2| Kernel
+    UC07 -->|pipe, dup2| Kernel
+    UC08 -->|waitpid WNOHANG| Kernel
+
+    %% ---------- STYLING ----------
     classDef actor fill:#f8fafc,stroke:#0f172a,stroke-width:2px,font-weight:bold,color:#0f172a;
     classDef primaryUC fill:#ecfdf5,stroke:#059669,stroke-width:2px,font-weight:600,color:#064e3b;
     classDef execUC fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,font-weight:600,color:#0c4a6e;
@@ -61,7 +82,7 @@ flowchart LR
     classDef modUC fill:#fefce8,stroke:#d97706,stroke-width:1.5px,font-weight:500,color:#713f12;
     classDef errorUC fill:#fef2f2,stroke:#ef4444,stroke-width:1.5px,stroke-dasharray: 3 3,color:#7f1d1d;
 
-    style Shell fill:#fafafa,stroke:#94a3b8,stroke-width:2px,stroke-dasharray: 5 5;
-    style Session fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
-    style Execution fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
-    style Modifiers fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
+    style SYS fill:#fafafa,stroke:#94a3b8,stroke-width:2px,stroke-dasharray: 5 5;
+    style G1 fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
+    style G2 fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
+    style G3 fill:#ffffff,stroke:#e2e8f0,stroke-width:1px;
